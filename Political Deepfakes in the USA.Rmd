@@ -1,0 +1,737 @@
+---
+title: "Political DeepFakes in the USA: Facebook Usage Does Not Impact American's Willingness to Beleive in Deepfakes"
+author: "Reem Alasadi, Laura Cline, and Will Trefiak"
+email: laura.cline@mail.utoronto.ca 
+date: "24/03/2021"
+abstract: "This paper uses a Pearson's Chi Square Test to explore the relationship between Facebook usage and identifying if a video is real or a deepfake.We used data from Soubhik Barari, Christopher Lucas, and Kevin Munger's 'Political Deepfake Videos Misinform the Public, but But No More than Other Fake Media' January 2021 study. The paper exposes that there is no relationship between Facebook usage and correctly identifying deepfakes. However, the authors observed that there is a stronger relationship between political affiliation and the figure in the video in predicting whether the video is a deepfake. We conclude that partisan-motivated reasoning appears to faciliate misinformation rather than facebook usuage or the content of the deepfake video itself. Therefore, the paper The link to our GitHub repo for this project is: https://github.com/lauracline/Political-Deepfakes-USA."
+output:
+  bookdown::pdf_document2:
+    toc: TRUE
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(optparse)
+library(tidyverse)
+library(ggplot2)
+library(broom)
+library(stargazer)
+library(tidymodels)
+```
+
+# Introduction 
+
+Issues surrounding misinformation, or more popularly referred to as "fake news" have become a topic of growing interest to researchers and the public alike. While misinformation in the form of text, audio, or images have achieved a degree of banality across the internet, the novelty and potential persuasive power of so-called "deepfake" technology has developed a reputation for being significantly more deceptive than its counterparts. To investigate the persuasive power of deepfakes, Soubhik Barari, Christopher Lucas, and Kevin Munger conducted a study with the following question to guide their research: “can deepfakes more powerfully persuade the public of non-existent scandals for real public officials than comparable media formats such as textual headlines or audio recordings?” In essence, Barari, Lucas and Munger investigate this research question by conducting two separate experiments: the first being an "exposure" experiment whereby respondents are shown an assortment of media sources, with a specified amount being a deepfake or another misinformation artifact. In the second, "detection" experiment, Barari, Lucas and Munger (also referred to as 'the principal researchers') are primarily interested in determining whether specific innate factors of a given respondent (e.g. digital literacy, ambivalent racism, ambivalent sexism) are indicative of deepfake susceptibility of a given public official. Upon completion of their two-part experiment, the principal researchers found that deepfakes are no more persuasive than other forms of misinformation, and also that select innate factors have a statistically significant correlation with deepfake susceptibility [@citePrincipal].
+
+Our own replication of this experiment is an attempt to build onto the work conducted by the principal researchers. While reproducibility is obviously a key objective of this document, our team felt it prudent to include additional analysis of a relationship not strictly explored by the principal researchers. Specifically, our work aims to investigate the relationship between Facebook usage and confidence in video authenticity. Since social media, and Facebook in particular, are often at the center of misinformation discussions, we thought it worthwhile to investigate the statistical significance of this potential relationship first through descriptive data analysis and then through modeling with Pearson's Chi-squared test. In addition, a comprehensive breakdown of the data used in this experiment is included as a means of speaking to the overall data quality and reproducibility of the experiment as created by the principal researchers.
+
+The findings of our own experiment are relatively inconclusive, out of the eight chi-square tests conducted, only three had a statistically significant value. Because of this, the two key implications drawn from our replication and expansion of this experiment are:
+
+1. **There is no relation between Facebook usage and deepfake detection:** Overall, our results show largely inconsistent p-values below the threshold of p < 0.05, and those that are all pertain to a specific candidate with high political salience, 44th US President Donald Trump.
+
+2. **Detecting deepfakes correctly was likely influenced by the plausibility of the story and the political figure the artifact:** Again, the three p-values noted at p < 0.05 were in videos related to Donald Trump, arguably the most politically salient figure in recent memory. Given the swirl of misinformation surrounding former President Trump throughout his term in office, it is likely these low p-values can be explained by skepticism in respondents of this "post-truth" phenomenon.
+
+# Overview of Experimental Design 
+
+## Principal Researcher's Experimental Design
+
+The experiment designed by the principal researchers is comprised of two experiments. First, the “exposure” experiment displays a simulated news feed with legitimate news to survey respondents with posts geared towards candidates who ran in the 2020 Democratic presidential primary. Additionally, during the exposure experiment, a deepfake, or any other misinformation artifact, may be included in respondents’ simulated news feeds. Before proceeding, it is worth noting the research question originally posed by Barari, Lucas, and Munger [@citePrincipal]:
+
+*“...can deepfakes more powerfully persuade the public of non-existent scandals for real public officials than comparable media formats such as textual headlines or audio recordings?”*.
+
+Functionally, the exposure experiment breaks survey responses into five distinct groups, with each group receiving a specific misinformation artifact, aside from the control group. This allows the principal researchers to compare the ‘persuasiveness’ of deepfakes with other forms of misinformation, such as an audio scandal, a textual scandal, a parody skit with a paid actor, and a campaign attack ad. Because the primary research question of this experiment is concerned with comparing the salience of deepfakes compared to other forms of misinformation, the principal researchers employ a series of t-tests to determine whether the null hypothesis “deepfakes are more deceptive than text/audio/skit” can be rejected. When compared to deepfakes through a t-test, the fake text and fake audio variables have respective p-values of 0.2245 and 0.05382, neither of which are below the critical threshold of p < 0.05 needed to sufficiently reject the null hypothesis. In the case of the skit misinformation variable, however, the reported p-value is 2.2e-16, which certainly falls below the threshold of p < 0.05. Another hypothesis posed by the principal researchers; “Deepfakes make target more unfavorable than/text/audio/skit” yields similar results, with the p-values of fake audio, fake text, parody skit, and attack ad variables all having insignificant p-values. In short, the null hypothesis cannot be rejected for the vast majority of variables tested against deepfakes, and therefore the researchers determined that deepfakes are likely no more convincing than other forms of misinformation on social media, aside from skits (which have a significant p-value in H1); but these are typically not associated with misinformation campaigns [@citePrincipal].
+
+Next, the “detection” experiment is carried out to measure respondents’ abilities to discriminate between real videos and deepfakes. As a result, respondents are split into three distinct groups for the detection experiment, with each group having either a high amount of deepfakes (75%), a low amount of deepfakes (25%), and no deepfakes at all. Following both experiments, as well as prior to the exposure experiment, survey respondents are tasked with answering a series of questions that prime half of the respondents for seeing deepfakes while simultaneously gauging respondents for qualities such as digital literacy, ambivalent racism, sexism, social media use, and a number of other factors that could impact an respondent’s susceptibility to deepfakes. For their first hypothesis in the detection experiment, the principal researchers investigate the “Heterogeneity in deception effect by info (info referring to subgroups identified)” by first conducting a t-test. Respondents identified as being in a subgroup are measured alongside a control group and the researchers note p-values of 8.79e-12 and p-value = 9.641e-05, meaning the null hypothesis that belonging to a subgroup has no impact on deepfake salience can be rejected. Following this t-test, a number of hypotheses related to these subgroups are investigated through linear regressions that are aimed at measuring deepfake susceptibility at a more granular level [@citePrincipal]. For a complete list of these subgroups, as well as the regression tables for all hypotheses in the detection experiment, please see appendix ___. 
+
+## Experimental Replication 
+
+As this document is a reproduction of the experiment outlined above, it is worth taking a moment to briefly discuss the implications of reproducibility in our work. First, the post-stratification weighting scheme applied by the principal researchers to their data has a single coding error that prevents successful application of this weighting in our own replication. As a result, there is a chance the dataset used has a demographic skew that is discussed in the data section below. In addition, sparsely commented code also provided challenges for understanding which hypotheses are being tested as well as gauging which objects are relevant to our replication.
+
+Our replication of this experiment is primarily concerned with building onto the comprehensive work carried out by Barari, Lucas, and Munger by investigating the relationship between Facebook usage and the belief that a video is a deepfake. For this, we are using data from the original repository and comparing the variable `fb_usage` against respondent beliefs about eight videos that are a mixture of authentic and inauthentic media. Differing from the idea of deepfake detection found in the principal experiment, we are particularly interested in whether Facebook usage has an impact on the confidence respondents have in whether a given video is a deepfake. The following figures are an exploratory analysis of `fb_usage` compared to the eight videos selected for our experiment, being measured by confidence that the particular event took place. 
+
+While these visualizations highlight a fair degree of range in their distribution of `fb_usage`, a slight trend can be noted in that politicians who are historically less polarizing seem to have confidence measures that are more ambivalent and “normally” distributed, while politicians who are historically more polarizing will see that polarity reflected in the distribution of confidence in video authenticity. 	This exploratory interpretation of the above data leaves us with an opportunity to develop further statistical insight through non-parametric testing methods such as Pearson’s Chi-squared test, which can be expressed as follows:
+
+$\chi^2 = \sum \frac {(O - E)^2}{E}$
+
+The chi-squared test was selected as a means of determining statistical significance for our variables given their categorical nature. Our primary variable of concern, `fb_usage`, breaks down frequency of Facebook use into seven distinct categories. Additionally, the variable `confidence that event took place` is an aggregate measure of three possible responses to a video (`video is fake or doctored`, `video is not fake or doctored`, `I don’t know`) that are measured by categorical confidence levels of 0%, 25%, 50%, 75%, and 100%.  
+
+# Data Description 
+
+To develop an enriched understanding of the data used in both the original experiment and this replication, our team has chosen to employ similar methods to those used in the creation of “data sheets.” Data sheets, while a somewhat novel concept, are a tool collaboratively developed by researchers at Google, Microsoft, Cornell University, and the Georgia Institute of Technology with the stated purpose of “encourag[ing] careful reflection on the process of creating, distributing, and maintaining a dataset, including any underlying assumptions, potential risks or harms, and implications of use” [@citeGebru]. In a practical sense, data sheets are effectively a systematic report or fact sheet that answers pertinent questions about a given dataset. The following sections, while not strictly a data sheet, aim to capture similar qualities about the dataset used in this experiment and replication and are guided by the questions found in Gebru et al., “Datasheets for Datasheets” from sections 3.1 to 3.7. For a complete list of the questions, as well as an example of a data sheet, see appendix ___. 
+
+## Motivation 
+
+This dataset was created with the intended purpose of investigating the susceptibility of social media users to deepfake technology in comparison to other forms of digital media manipulation, as Barari, Lucas, and Munger (2021) note; contention over the ‘persuasiveness’ of deepfakes was a primary impetus for their original experiment. The principal researchers are also the creators of the dataset. Finally, it is important to note the experiment was funded by the Weidenbaum Center on the Economy, Government, and Public Policy at Washington University, in St. Louis, MO [@citePrincipal]. 
+
+## Composition 
+
+Each instance in this dataset represents survey responses from individuals after they were exposed to a simulated social media feed depicting a mix of legitimate and false news stories or scandals of American political elites. While 17,501 survey responses were collected, 5,750 met the criteria for a quality response, and these comprise the dataset. The dataset is a sample of instances, and is a random sample representative of the adult US population (more details on sampling can be found in *Collection Process* section). Each sample instance contains 100 unique features, including demographic information, survey responses, as well as a series of questions geared towards identifying subgroups who are hypothesized to have increased susceptibility to deepfakes; namely “racists,” “sexists,” “partisans,” and those with “low digital literacy” [@citePrincipal].
+
+Given the politically charged nature of this dataset and the methods used to gather it, some of the instances may contain responses that are extremely negative or vitriolic in nature towards a certain political elite, and therefore could offend some — if the information in the dataset were to ever leak. Having said that, all instances have undergone a process of anonymization and responses are to be stored securely. In addition, this data contains demographically relevant information including dimensions of ethnicity and age, which should always be carefully considered when analyzing any data set. The nature of deepfakes themselves, which are at the center of this study and the data collected, are also worthy of discussion from an ethical standpoint. Given their potentially persuasive nature, none of the deepfakes chosen for this experiment excluded candidates who were, at the time, running for president. 
+
+## Collection Process
+
+The primary data collection method employed by Barari, Lucas, and Munger leverages the Lucid survey platform to gather a representative sample of the adult US population. In this way, the randomness of their initial sample size was accounted for by the Lucid survey platform, where the original sample of 17,501 samples were gathered before being narrowed down to 5,750 quality responses based on the principal researcher’s selection criteria. Although utilizing a third party to handle the legwork of sampling and survey distribution is commonplace — and wholly understandable — when conducting such an experiment, it is still important to note a tradeoff is being made. Specifically, when utilizing a third party to collect survey data, this tradeoff comes in the form of convenience v.s. control over sampling strategy. In essence, while third parties provide an expedient way to gather survey data, they also provide another avenue through which bias can creep into the dataset. Since a significant proportion of the sampling strategy is deferred to a third party in this case, the principal researchers took steps to ensure the bias introduced was mitigated. One such bias noted on the Lucid survey platform by Aronow et al. (2020) is inattentiveness, which can severely impact the quality of survey responses given the media-heavy nature of this experiment. Attention checks, as well as technology checks (watching entire video, able to scroll, etc.), were resultedly employed throughout the survey to ensure a suitable amount of responses were of high analytical quality [@citeAnrow]. Finally, a post-stratification weighting technique was applied to adjust for “observable demographic skews” noted in the sample [@citePrincipal]. 
+
+## Preprocessing, Cleaning and Labelling 
+
+Much of the preprocessing, cleaning, and labelling in this dataset pertains specifically to gathering responses that align with the selection criteria created by the principal researchers and applying the post stratification weighting. Additionally, attention to prominence and reproducibility can be noted in the original dataset and repository, where the raw data can be found and readily transformed by the code provided. A general overview of the basic transformations this dataset underwent can be found below:
+
+1. **Selection Criteria:** Data was collected from the lucid survey platform, which was noted above as a potential site for bias to creep into the sample. Selection criteria comprised of attention checks and technology checks narrowed the workable sample size from 17,501 to 5,750 instances as a means of mitigating this bias. 
+
+2. **Age binning:** Age groups were converted from a numerical value to a factor in which age groups are classified as bins that contain a specific age range.
+
+3. **Post-stratification weighting:** Leverages the `tidyverse` [@citetidyverse], `survey` [@citeSurvey], `stargazer` [@citeStargazer], and `weights` [@citeWeights], broom [@citeBroom], optparse [@citeOptparse], ggplot [@citeggplot2], `R` [@citeR] packages, as well as crosstabulation data from the US census to adjust for skewed demographics identified in the principal sample. Important to note this step was not entirely reproducible in our own experiment, as a non-existent variable name makes applying post-stratification weights to the original dataset impossible at this time. 
+
+4. **Label Adjustments:** Labels/column names found in the original survey data were adjusted to be machine readable prior to analysis (i.e. spaces + other ‘junk’ characters were removed).
+
+## Distribution 
+
+The dataset is made public via. repository set up by the principal researchers. It can be found here: https://github.com/soubhikbarari/Political-Deepfakes-Fx 
+
+## Maintenance 
+
+Due to the recency and nature of the data, our team was unable to locate any established maintenance protocols. There is a possibility, however, the Lucid platform is responsible for maintenance, but this would include the entire survey sample of 17,501.  
+
+# Descriptive Data Analysis 
+
+```{r include=FALSE}
+rm(list=ls())
+load("deepfake.Rdata")
+
+if (!file.exists("tables_exploratory")) {
+  system("mkdir tables_exploratory")
+}
+if (!file.exists("figures_exploratory")) {
+  system("mkdir figures_exploratory")
+}
+
+COVARS <- c("educ", "meta_OS", "age_65", "PID", "crt", "gender", "polknow", 
+            "internet_usage", "ambivalent_sexism")
+
+#####------------------------------------------------------#
+##### Settings ####
+#####------------------------------------------------------#
+
+arg_list <- list(     
+  make_option(c("--response_quality"), type="character", default="all", 
+              help="Which quality of responses to condition on.",
+              metavar="response_quality"),
+  # make_option(c("--weight"), type="numeric", default=0,
+  #             help="Use weights?",
+  #             metavar="weight"),
+  make_option(c("--show_pdfs"), type="numeric", default=0,
+              help="Show PDFs in real time?",
+              metavar="show_pdfs")
+)
+ARGS <- parse_args(OptionParser(option_list=arg_list))
+
+SHOW_PDFS <- ARGS$show_pdfs
+
+dat$lowq <- FALSE
+dat$lowq[dat$quality_pretreat_duration_tooquick | dat$quality_pretreat_duration_tooslow | dat$quality_demographic_mismatch] <- TRUE
+
+# if (ARGS$response_quality == "low") {
+#     dat <- dat[dat$quality_pretreat_duration_tooquick | dat$quality_pretreat_duration_tooslow | dat$quality_demographic_mismatch,] ## cond on low quality    
+# }
+# 
+# if (ARGS$response_quality == "high") {
+#     dat <- dat[!dat$quality_pretreat_duration_tooquick & !dat$quality_pretreat_duration_tooslow & !dat$quality_demographic_mismatch,] ## cond on high quality
+# }
+
+# if (ARGS$weight == 0 | !("weight" %in% colnames(dat))) {
+#     dat$weight <- 1
+# } 
+```
+
+
+## Only 5,833 People Participated in the Original Experiment 
+
+Although we do not have the resources to re-perform the survey, we can use the original dataset to expand on the original study. Table 1 illustrates that 5,833 people participated in then original experiment and completed the pre-experiment survey (Table \@ref(tab:tab1)). Since the survey only covered a small percentage of the American population and the dataset does not include information on where these respondents are located, our results may have low external validity. 
+
+The table was created using R [@citeR], tidyverse [@citetidyverse], and kableExtra [@citeKable]. 
+
+```{r tab1, echo=FALSE}
+population_table <- 
+  dfsurvdat %>%
+  count() %>% # Count the number of survey respondents 
+  rename("Number of Survey Respondents" = n) # Renamed column so more human readable
+
+population_table %>% #Create a table 
+  knitr::kable(caption = "Total Number of Survey Respondents (January 2021)") %>%
+  kableExtra::kable_styling() #Cleaner table
+```
+
+## Majority of Respondents Use Facebook Several Times per Day 
+
+Figure 1 demonstrates the distribution of Facebook usage among experiment participants. The data shows that the majority of respondents use Facebook "several times a day", followed by "about once a day" and "less often" (Figure \@ref(fig:fig1)).
+
+The graph was built using R [@citeR], tidyverse [@citetidyverse], and ggplot2 [@citeggplot2]. 
+
+```{r fig1, echo=FALSE}
+dfsurvdat %>%
+  ggplot(mapping = aes(x = fb_usage)) + # Creates plot with fb_usage on x-axis
+  geom_bar(fill = "blue") + # Create a bar chart 
+  theme_minimal() + # Clean theme 
+  labs( # Add labels 
+    title = "Majority of Respondents Use Facebook \nSeveral Times a Day (January 2021)",
+    subtitle = "36 percent of respondents use Facebook \nSeveral Times a Day",
+    caption = "(data from the 'dfsurvdat (2021)')",
+    x = "Facebook Usage",
+    y = "Number of Respondents") +
+  guides(fill = FALSE) + # Remove legend
+  coord_flip()
+```
+
+## Second Stage Clip Performance By Facebook Usage 
+
+```{r include=FALSE}
+dfsurvdat$fb_usage <- as.character(dfsurvdat$fb_usage)
+dfsurvdat$fb_usage[is.na(dfsurvdat$fb_usage)] <- "N/A"
+dfsurvdat$fb_usage <- factor(dfsurvdat$fb_usage, levels=c("N/A","Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time"))
+
+scores_byfbusage <- dfsurvdat[,c("fb_usage", nofake_vids, lowfake_vids, hifake_vids)] %>%
+  gather(key="video", value="response", -fb_usage) %>%
+  filter(!is.na(as.character(response))) %>%
+  mutate(is_real=grepl("real", video)) %>%
+  mutate(video=gsub("_\\d$", "", video)) %>%
+  mutate(video=ifelse(video=="real_bidenfight", "real_biden_fight", video)) %>%
+  mutate(correct=ifelse(is_real==TRUE & response=="This video is not fake or doctored", 1, 
+                        ifelse(is_real==FALSE & response=="This video is fake or doctored", 1, 0))) %>%
+  mutate(correct=replace_na(correct, 0)) %>%
+  group_by(fb_usage, video) %>%
+  summarise(pct_correct=mean(correct, na.rm=T), .keep = "all") %>% 
+  mutate(video_lbl=case_when(video == "fake_hilary2" ~ "Hillary Clinton\n(fake debate)",
+                             video == "fake_obama_buzzfeed" ~ "Barack Obama\n(fake news announcement)",
+                             video == "real_obama_missile" ~ "Barack Obama\n(Russian president hot mic)",
+                             video == "fake_bernie1" ~ "Bernie Sanders\n(fake debate)",
+                             video == "real_obama_smoking" ~ "Barack Obama\n(smoking hot mic)",
+                             video == "real_warrenbeer" ~ "Elizabeth Warren\n(Instagram beer gaffe)",
+                             video == "real_trump_soup" ~ 'Donald Trump\n("soup" press conference gaffe)',
+                             video == "real_trump_apple" ~ "Donald Trump\n(Apple press conference gaffe)",
+                             video == "real_biden_fight" ~ "Joe Biden\n(town hall 'push-up contest' gaffe)",
+                             video == "fake_boris" ~ "Boris Johnson\n(fake Brexit announcement)",
+                             video == "real_warrenliar" ~ "Elizabeth Warren\n(post-debate hot mic)",
+                             video == "real_biden_stumble" ~ "Joe Biden\n(stutter gaffe)",
+                             video == "real_trump_covid" ~ "Donald Trump\n(COVID-19 precautions announcement)",
+                             video == "fake_trump_aids" ~ "Donald Trump\n(fake AIDS cure announcment)",
+                             video == "fake_trump_resign" ~ "Donald Trump\n(fake resignation announcement)")) %>%
+  as.data.frame()
+```
+
+Before running our experiment, we examined the Facebook usuage of respondents during the second stage clip performance. Unlike the first stage clip performance where participants watched videos without being told to look for deepfakes, the second stage debriefed participants that they were looking for deepfake videos and to identify which videos they think are real or fake.  
+
+Figure 2 identifies the percentage of participants who correctly responded that the videos below are fake based on their Facebook usage (Figure \@ref(fig:fig2)). We can see below that there is no discernible difference between facebook usage and correctly identifying if the video was fake. Interestingly, participants were more likely to correctly guess that more Conservative political figures including Donald Trump and Boris Johnson were fake compared to liberal political figures like Hilary Clinton, Barack Obama, and Bernie Sanders. Thus, the political figure in the video may have more of an impact on people's perceptions on the realness/fakeness of the video rather than their Facebook usage. 
+
+The graph was built using R [@citeR], tidyverse [@citetidyverse], and ggplot2 [@citeggplot2]. I could not add a title to this plot because I used the original author's code which is connected to an Excel spreadsheet that has all the formatting options for their figures and tables. The figures do not have a title option. 
+
+```{r fig2, echo=FALSE}
+p_scores_fakefb <- scores_byfbusage %>% mutate(is_fake=grepl("fake_", video)) %>% filter(is_fake) %>% 
+  mutate(is_fake="fake clips") %>%
+  arrange(desc(fb_usage), -pct_correct) %>% mutate(video_lbl=as_factor(video_lbl)) %>%
+  ggplot(aes(x=video_lbl, y=pct_correct, fill=fb_usage)) + 
+  geom_bar(stat="identity", position=position_dodge(width=0.8), width=0.8, color="black") +
+  scale_y_continuous() + 
+  scale_x_discrete(expand=c(-0.1, 0)) +
+  coord_flip() +
+  facet_grid(is_fake ~ .) +
+  xlab("") + ylab("% of participants") +
+  theme_bw() 
+
+p_scores_fakefb
+```
+
+Similarly, Figure 3 identifies the percentage of participants who correctly identifies the real videos based on Facebook usage. The results again show that Facebook usuage does not seem to impact participant's ability to correctly identify a correct video (Figure \@ref(fig:fig3). Additionally, there appears to be no difference between people's ability to identify fake videos based on if the political figure is conservative or liberal. 
+
+The graph was built using R [@citeR], tidyverse [@citetidyverse], and ggplot2 [@citeggplot2]. 
+
+```{r fig3, echo=FALSE}
+p_scores_realfb <- scores_byfbusage %>% mutate(is_real=grepl("real_", video)) %>% filter(is_real) %>% 
+  mutate(is_real="real clips") %>%
+  arrange(desc(fb_usage), -pct_correct) %>% mutate(video_lbl=as_factor(video_lbl)) %>%
+  ggplot(aes(x=video_lbl, y=pct_correct, fill=fb_usage)) + 
+  geom_bar(stat="identity", position=position_dodge(width=0.8), width=0.8, color="black") +
+  scale_y_continuous() + 
+  scale_x_discrete(expand=c(-0.1, 0)) +
+  coord_flip() +
+  facet_grid(is_real ~ .) +
+  xlab("") + ylab("% of participants") +
+  theme_bw() 
+
+p_scores_realfb
+```
+
+# Second Stage Clip Performance By Political Affiliation  
+
+In contrast, the second stage clip performance for political affiliation (Democrat, Republican, and Independent) demonstrates that politically motivated reasoning appears to facilitate misinformation. For instance, Republicans are more likely to believe that positive videos about Republicans (Donald Trust COVID-19 Precautions) (Figure \@ref(fig:fig5) and negative videos about Democrats (Barack Obama Russian Hot Mic) (Figure \@ref(fig:fig4). Thus, individual's partisanship rather than their Facebook usage appears to facilitate misinformation because people are more likely to believe videos that fit their political views and reject those that do not. 
+
+For future research, the data demonstrates that people's cognitive characteristics are essential components for how people process information. 
+
+The graphs were built using R [@citeR], tidyverse [@citetidyverse], and ggplot2 [@citeggplot2]. 
+
+```{r fig4, echo=FALSE}
+dfsurvdat$PID_main <- as.character(dfsurvdat$PID_main)
+dfsurvdat$PID_leaners <- as.character(dfsurvdat$PID_leaners)
+dfsurvdat$PID[dfsurvdat$PID_main=="Democrat"|dfsurvdat$PID_leaners=="Democrat"] <- "Democrat"
+dfsurvdat$PID[dfsurvdat$PID_main=="Republican"|dfsurvdat$PID_leaners=="Republican"] <- "Republican"
+dfsurvdat$PID[dfsurvdat$PID_main=="Independent"&!(dfsurvdat$PID_leaners %in% c("Democrat","Republican"))] <- "Independent"
+dfsurvdat$PID[is.na(dfsurvdat$PID)] <- "N/A"
+dfsurvdat$PID <- factor(dfsurvdat$PID, levels=c("N/A","Democrat","Independent","Republican"))
+
+scores_byPID <- dfsurvdat[,c("PID", nofake_vids, lowfake_vids, hifake_vids)] %>%
+    gather(key="video", value="response", -PID) %>%
+    filter(!is.na(as.character(response))) %>%
+    mutate(is_real=grepl("real", video)) %>%
+    mutate(video=gsub("_\\d$", "", video)) %>%
+    mutate(video=ifelse(video=="real_bidenfight", "real_biden_fight", video)) %>%
+    mutate(correct=ifelse(is_real==TRUE & response=="This video is not fake or doctored", 1, 
+                          ifelse(is_real==FALSE & response=="This video is fake or doctored", 1, 0))) %>%
+    mutate(correct=replace_na(correct, 0)) %>%
+    group_by(PID, video) %>%
+    summarise(pct_correct=mean(correct, na.rm=T), .keep = "all") %>% 
+    mutate(video_lbl=case_when(video == "fake_hilary2" ~ "Hillary Clinton\n(fake debate)",
+                               video == "fake_obama_buzzfeed" ~ "Barack Obama\n(fake news announcement)",
+                               video == "real_obama_missile" ~ "Barack Obama\n(Russian president hot mic)",
+                               video == "fake_bernie1" ~ "Bernie Sanders\n(fake debate)",
+                               video == "real_obama_smoking" ~ "Barack Obama\n(smoking hot mic)",
+                               video == "real_warrenbeer" ~ "Elizabeth Warren\n(Instagram beer gaffe)",
+                               video == "real_trump_soup" ~ 'Donald Trump\n("soup" press conference gaffe)',
+                               video == "real_trump_apple" ~ "Donald Trump\n(Apple press conference gaffe)",
+                               video == "real_biden_fight" ~ "Joe Biden\n(town hall 'push-up contest' gaffe)",
+                               video == "fake_boris" ~ "Boris Johnson\n(fake Brexit announcement)",
+                               video == "real_warrenliar" ~ "Elizabeth Warren\n(post-debate hot mic)",
+                               video == "real_biden_stumble" ~ "Joe Biden\n(stutter gaffe)",
+                               video == "real_trump_covid" ~ "Donald Trump\n(COVID-19 precautions announcement)",
+                               video == "fake_trump_aids" ~ "Donald Trump\n(fake AIDS cure announcment)",
+                               video == "fake_trump_resign" ~ "Donald Trump\n(fake resignation announcement)")) %>%
+    as.data.frame()
+
+p_scores_fake2 <- scores_byPID %>% mutate(is_fake=grepl("fake_", video)) %>% filter(is_fake) %>% 
+    mutate(is_fake="fake clips") %>%
+    arrange(desc(PID), -pct_correct) %>% mutate(video_lbl=as_factor(video_lbl)) %>%
+    mutate(PID=case_when(PID == "Democrat" ~ "D",
+                         PID == "Republican" ~ "R",
+                         PID == "Independent" ~ "I")) %>%
+    ggplot(aes(x=video_lbl, y=pct_correct, fill=PID, label=PID)) + 
+    geom_bar(stat="identity", position=position_dodge(width=0.8), width=0.8, color="black") +
+    geom_text(aes(y=pct_correct+0.02), position = position_dodge(width = 0.8), size=2.5) + 
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    scale_x_discrete(expand=c(-0.1, 0)) +
+    scale_fill_manual(values=c("blue","grey","red")) +
+    coord_flip() +
+    facet_grid(is_fake ~ .) +
+    xlab("") + ylab("") +
+    theme_bw() + 
+        theme(title = element_text(size=5),
+              legend.position = "none",
+              axis.text.x = element_text(size=12),
+              axis.text.y = element_text(size=12),
+              strip.text = element_text(size=16),
+              axis.title.x = element_text(size=14),
+              axis.title.y = element_text(size=14))
+
+p_scores_fake2
+```
+
+```{r fig5, echo=FALSE}
+p_scores_real2 <- scores_byPID %>% mutate(is_real=grepl("real_", video)) %>% filter(is_real) %>% 
+    mutate(is_real="real clips") %>%
+    mutate(PID=case_when(PID == "Democrat" ~ "D",
+                         PID == "Republican" ~ "R",
+                         PID == "Independent" ~ "I")) %>%
+    arrange(desc(PID), -pct_correct) %>% mutate(video_lbl=as_factor(video_lbl)) %>%
+    ggplot(aes(x=video_lbl, y=pct_correct, fill=PID, label=PID)) + 
+    geom_bar(stat="identity", position=position_dodge(width=0.8), width=0.8, color="black") +
+    geom_text(aes(y=pct_correct+0.02), position = position_dodge(width = 0.8), size=2.5) + 
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    scale_x_discrete(expand=c(-0.1, 0)) +
+    scale_fill_manual(values=c("blue","grey","red")) +
+    coord_flip() +
+    facet_grid(is_real ~ .) +
+    xlab("") + ylab("% of correct detections") +
+    theme_bw() + 
+        theme(title = element_text(size=5),
+              legend.position = "none",
+              axis.text.x = element_text(size=12),
+              axis.text.y = element_text(size=12),
+              strip.text = element_text(size=16),
+              axis.title.x = element_text(size=14),
+              axis.title.y = element_text(size=14))
+
+p_scores_real2
+```
+
+## Correlation Between Facebook Usage and Believing a Video is Fake or True 
+
+We created eight figures to visualize the correlation between Facebook Usage and believing a video is fake or true. 
+
+The graphs were built using R [@citeR], tidyverse [@citetidyverse], stargazer [@citeStargazer] and ggplot2 [@citeggplot2].
+
+1. **Real: Barack Obama Russian President Hot Mic**
+
+The majority of respondents correctly identified the video was real regardless of Facebook usage. Those who used Facebook 3-6 times per week were more likely to answer correctly (Figure \@ref(fig:fig6). 
+
+```{r fig6, echo=FALSE}
+dfsurvdat %>% ## real obama missile by facebook_usage
+  filter(!is.na(factor(real_obama_missile))) %>%
+  mutate(real_obama_missile = case_when(real_obama_missile == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                        real_obama_missile == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                        real_obama_missile == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ real_obama_missile) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=14),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+2. **Real: Barack Obama Smoking Hot Mic**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig7).
+
+```{r fig7, echo=FALSE}
+dfsurvdat %>% ## Real Obama Smoking by facebook_usage
+  filter(!is.na(factor(real_obama_smoking))) %>%
+  mutate(fake_hilary2 = case_when(real_obama_smoking == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  real_obama_smoking == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  real_obama_smoking == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ real_obama_smoking) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18))
+```
+
+
+3. **Real: Donald Trump Apple Press Conference Gaffe**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig8).
+
+```{r fig8, echo=FALSE}
+dfsurvdat %>% ## Real Trump Apple by facebook_usage
+  filter(!is.na(factor(real_trump_apple))) %>%
+  mutate(fake_hilary2 = case_when(real_trump_apple == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  real_trump_apple == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  real_trump_apple == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ real_trump_apple) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+
+4. **Real: Donald Trump COVID-19 Precautions Announcement**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig9).
+
+```{r fig9, echo=FALSE}
+dfsurvdat %>% ## Real Trump COVID by facebook_usage
+  filter(!is.na(factor(real_trump_covid))) %>%
+  mutate(fake_hilary2 = case_when(real_trump_covid == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  real_trump_covid == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  real_trump_covid == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ real_trump_covid) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+
+5. **Fake: Barack Obama Buzzfeed News Announcement** 
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig10).
+
+```{r fig10, echo=FALSE}
+dfsurvdat %>% ## Fake obama buzzfeed by facebook_usage
+  filter(!is.na(factor(fake_obama_buzzfeed))) %>%
+  mutate(fake_hilary2 = case_when(fake_obama_buzzfeed == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  fake_obama_buzzfeed == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  fake_obama_buzzfeed == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ fake_obama_buzzfeed) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+
+6. **Fake: Hillary Clinton Debate**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig11).
+
+```{r fig11, echo=FALSE}
+dfsurvdat %>% ## Fake hiliary interview by facebook_usage
+  filter(!is.na(factor(fake_hilary2))) %>%
+  mutate(fake_hilary2 = case_when(fake_hilary2 == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  fake_hilary2 == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  fake_hilary2 == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ fake_hilary2) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=14),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+
+7. **Fake: Donald Trump AIDS Cure Announcement**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig12).
+
+```{r fig12, echo=FALSE}
+dfsurvdat %>% ## Real Trump Aids by facebook_usage
+  filter(!is.na(factor(fake_trump_aids))) %>%
+  mutate(fake_hilary2 = case_when(fake_trump_aids == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  fake_trump_aids == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  fake_trump_aids == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ fake_trump_aids) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+8. **Fake: Donald Trump Resigns**
+
+The results were inconclusive for Facebook usage (Figure \@ref(fig:fig13). However, there is an odd pattern for those who use Facebook 3-6 times a week have a 60-75 percent confidence that the video is real. 
+
+```{r fig13, echo=FALSE}
+dfsurvdat %>% ## Fake Trump resign by facebook_usage
+  filter(!is.na(factor(fake_trump_resign))) %>%
+  mutate(fake_hilary2 = case_when(fake_trump_resign == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                  fake_trump_resign == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                  fake_trump_resign == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_3, fill=fb_usage)) + 
+  xlab("confidence that event took place") +
+  facet_grid( ~ fake_trump_resign) +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=6),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+## Correlation Between Political Affiliation and Believing a Video is Fake or True 
+
+In contrast, political affiliation is a stronger predictor that a participant beleived a video was fake or real. 
+
+The graphs were built using R [@citeR], tidyverse [@citetidyverse], stargazer [@citeStargazer] and ggplot2 [@citeggplot2].
+
+**Real: Donald Trump COVID-19 Precautions Announcement**
+
+For instance, Republicans were significantly more likely to believe the video about Donald Trump's COVID-19 precautions was real compared to Democrats and Independents (Figure \@ref(fig:fig14). The data demonstrates that it does not really matter if the video is real or not because even though the Donald Trump COVID-19 video is real, Democrats and Republicans incorrectly labeled it as a "Deepfake" because the video did not conform to their political perceptions of Donald Trump. 
+
+```{r fig14, echo=FALSE}
+dfsurvdat %>% ## by partisanship
+  filter(!is.na(factor(real_trump_covid))) %>%
+  mutate(real_trump_covid = case_when(real_trump_covid == "This video is fake or doctored" ~ "Believed that\nvideo is fake",
+                                      real_trump_covid == "This video is not fake or doctored" ~ "Believed that\nvideo is real",
+                                      real_trump_covid == "I don't know" ~ "Unsure")) %>%
+  ggplot(aes(x=fake_vs_didnt_happen_2, fill=PID)) + 
+  xlab("confidence that event took place") +
+  facet_grid(~ real_trump_covid) +
+  scale_fill_manual(values=c("blue","grey","red"), name="Party identification:") +
+  geom_density(color="black", alpha=0.5) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size=14),
+    axis.text.x = element_text(size=14),
+    strip.text = element_text(size=14),
+    axis.title.x = element_text(size=18),
+    axis.title.y = element_text(size=18)
+  )
+```
+
+# Results 
+
+## Chi-Square Test for the Correlation Between Political Affiliation and Believing a Video is Fake or True 
+
+We used a Pearson's Chi-Square test to analyze the relationship between political affiliation and believing a video is fake or true. We are using a Chi-Square test $X^{2}$ because that was the test conducted by the principal authors. $X^{2}$ is used to determine whether there is a statistically significant result between the expected and observed frequencies in one or more categories of the contingency table. We are using a $X^{2}$ test because political affiliation and beleiving a video is real/false are both qualitative variables. 
+
+The formula for Pearson's Chi-Square test is:
+
+$\chi^2 = \sum \frac {(O - E)^2}{E}$
+
+Where $O$ is the observed frequencies and $E$ is the expected frequencies. 
+
+Our null and alternative hypothesis are:
+
+**H0**: There is no relationship between facebook usage and identifying if the video is real or a deepfake. 
+
+**H1**: There is no relationship between facebook usage and identifying if the video is real or a deepfake. 
+
+We will set our alpha level to 0.05. 
+
+We will perform eight Chi-Square test: 2 real video and 2 fake videos for left-leaning politicians; and 2 real videos and 2 fake videos for right-leaning politicians. We used tidymodels to build these models [@citeTidymodels].
+
+1. **Real: Barack Obama Russian President Hot Mic**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$real_obama_missile[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_obama_missile) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_obama_missile) != "I don't know"]))
+) ##X-squared = 4.6801, df = 6, p-value = 0.5854
+```
+
+
+2. **Real: Barack Obama Smoking Hot Mic**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$real_obama_smoking[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_obama_smoking) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_obama_smoking) != "I don't know"]))
+) ##X-squared = 11.911, df = 6, p-value = 0.06398
+
+```
+
+
+3. **Real: Donald Trump Apple Press Conference**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$real_trump_apple[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_trump_apple) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_trump_apple) != "I don't know"]))
+) ##X-squared = 12.305, df = 6, p-value = 0.0555
+```
+
+
+4. **Real: Donald Trump COVID-19 Precautions Announcement**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$real_trump_covid[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_trump_covid) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$real_trump_covid) != "I don't know"]))
+) ##X-squared = 14.242, df = 6, p-value = 0.02704
+```
+
+
+5. **Fake: Obama Buzzfeed News Announcement**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$fake_obama_buzzfeed[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_obama_buzzfeed) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_obama_buzzfeed) != "I don't know"]))
+) ##X-squared = 4.3804, df = 6, p-value = 0.6253 
+```
+
+6. **Fake: Hillary Clinton Debate**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$fake_hilary2[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_hilary2) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_hilary2) != "I don't know"]))
+) ##X-squared = 3.3525, df = 6, p-value = 0.7635 
+```
+
+7. **Fake: Donald Trump AIDS Cure Announcement**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$fake_trump_aids[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_trump_aids) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_trump_aids) != "I don't know"]))
+) ##X-squared = 56.795, df = 6, p-value < 2.01e-10 
+```
+
+8. **Fake: Donald Trump Resigns**
+
+```{r echo=FALSE}
+chisq.test(
+  table(as.character(dfsurvdat$fake_trump_resign[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_trump_resign) != "I don't know"]),
+        as.character(dfsurvdat$fb_usage[as.character(dfsurvdat$fb_usage) %in% c("Less often", "Every few weeks", "1 to 2 days a week", "3 to 6 days a week", "About once a day", "Several times a day", "Pretty much all the time") & as.character(dfsurvdat$fake_trump_resign) != "I don't know"]))
+) ##X-squared = 25.943, df = 6, p-value = 0.0002281  
+```
+
+Out of our eight models, we received p-values that were below the alpha level for "Fake: Donald Trump AIDS Cure Announcement" and "Fake: Donald Trump Resigns". 
+
+Our p-values for Fake Donald Trump AIDS Cure Announcement and Donald Trump Resigns (2.01e-10 and 0.0002281 respectively) are well below the alpha level threshold of 0.05. Therefore, the p-value flags the data as being unusual if all the assumptions used to compute it (including the test hypothesis) were correct. A p-value less than 0.05 suggests that a discrepancy from the hypothesis prediction would be as large or larger than the observed no more than 5% of the time if only chance was creating the discrepancy. However, the low p-value may also be caused by a large random error or some assumptions other than the test hypothesis were violated. Despite the p-values being less than 0.05, the results for the other chi-square tests are all above the alpha level. Therefore, we do not feel comfortable completely rejecting our null hypothesis that there is no relationship between Facebook usuage and identifying a video as fake or real [@citeSander]. 
+
+# Discussion 
+
+Overall, our study concluded that there is no relationship between Facebook usage and individual's ability to detect deepfake videos. We assumed that the more our participants used Facebook, the more they would be able to detect fake news or deepfakes because Facebook uses an algorithm to detect deepfake videos and label them on the platform. Consequently, we assumed that people who used Facebook more often are more likely to be exposed to these deepfake videos in the past and thus are more likely to detect them as deepfakes. Instead, we observed that facebook usage is inconsequential to detecting deepfake videos correctly. Rather, an individual's political affiliation is a stronger predictor of identifying a video as fake or real based on their attitudes towards the political figure in the video and if the video's content matches their political values. 
+
+ It is worth mentioning again that Facebook is working on detecting and eliminating deepfakes. In a statement published by the vice president of the Global Policy Management early last year, Facebook announced that it is going to remove deepfakes from their website as they “present a significant challenge for our industry and society as their use increases'' [@citeBickert]. The deepfake videos will be removed if they have been manipulated in such a way that they seem authentic and if they cannot be detectable by the average user. Additionally, the new policy “does not extend to content that is parody or satire, or video that has been edited solely to omit or change the order of words''. Which begs the question “who gets to decide what gets to stay and what should be removed?”. Prior to this policy, Facebook has been criticized for refusing to remove a video of a US House of Representative speaker, Nancy Pelosi, that has been altered to make her seem to be slurring her speech [@citeWaterson]. When asked about whether or not Facebook is going to remove this video under the new policy, Facebook told Reuters that it will not [@citeReuters].
+ 
+ The authors of the original study took into account several factors that could influence detecting deepfakes. Factors like age, education, technical literacy, political literacy, the emotions the video stirred (funny, informative, offensive), ideologies (racism, sexism, etc.).  Users were able to detect deepfakes correctly more when the news revolved around Donald Trump, the current president at the time. Fake news about finding a cure for AIDS or the president resigning yielded higher deepfake detection rates than any other news. This could be to the fact that these stories are implausible. 
+
+ 
+There are a few limitations to our analysis and proceeding experiment worth discussing, all of which circulate around a long standing tension between sample anonymity and sample accuracy. This tension is probably best laid out in work done but Lisa Austin and David Lie (2019), which speaks more directly to the balancing act that comes with making sure your data is both accurate and private. Speaking in terms of anonymization and de-anonymization, Austin and Lie engage with methods such as k-anonymity and differential privacy, measuring their respective strengths and limitations. Very briefly, k-anonymity is a process where specific data features are omitted from a sample (or for Austin and Lie, a dataset) to ensure no re-identification of respondents is possible (Austin and Lie 2016, 592). Differential privacy is slightly more sophisticated as it requires the development of a model that measures significant “privacy loss” (Austin and Lie 2016, 583) in a sample and accounts for this metric in the proceeding statistical analysis [@citeAustin].
+
+Another limitation was inaccessibility to study participants. Since we used thestudy was originally conducted by the principal authors, we could not redo the experiment or ask additional questions to study participants that the original authors did not consider. Rather than just focusing on Facebook usage, we could go more in-depth on the pages they visit, if they have been exposed to these videos (both real and fake before), or if they have heard information related to the videos circulating on the platform before. We could also examine their Facebook feed and see how often the participant is exposed to misinformation on the platform. With these in-depth questions, we could have conducted a larger study on how exposure to misinformation on Facebook contributes to people's willingness to believe deepfake videos. 
+
+A third limitation is that the original code was not fully reproducible. A significant challenge when designing the study and conducting the experiment was that the authors used multiple datasets, put the formatting for their graphs in a seperate spreadsheet, and the authors gave the same dataset multiple names throughout the code which made the code hard to follow. Another challenge we faced ws that the code has minimal commentary and so it was difficult to follow along with some segments and know their purpose. Thus, the original study has low internal validity. 
+
+Lastly, a weakness of the dataset was that the original author's sample collection method could potentially have selection bias. It is not clear from the original aithors how they collected the sample and how representative this sample is of the general American population they want to study. Although the same is very large at 5,883 people, this is a small number compared to the overall American population. We also don't know the hidden characteristics of these participants that were not captured in the survey which could be influencing our experiment's results. For example, the people that responded may have a large knowledge of deepfakes, they may all live in the same region, or another hidden factor not captured in the dataset. Thus, the original study has low internal and external validity. 
+
+When considering the implications of our intervention, however, there are a number of directions for further research that could all contribute unique insights into the ongoing deepfakes crisis and their impact on political behavior. For instance, the original dataset was conducted during the 2020 Presidential Election. It would be interesting to re-do the experiment a year after the study do examine if the partisan relationship still holds. In addition, further research and interventions geared towards countries outside the USA could examine if there is a relationship between people's belief that a video is real or fake based on their political affiliation and facebook usage depending on what country they are in. For example, Saudia Arabian government often uses deepfake videos as a propaganda tool. It would be interesting to reconduct the study in the country where people are more exposed to deepfake videos on a daily basis and there is greater public awareness about the technology. Would the study yield similiar results had it been conducted in a different country where people are not strongly affiliated with politics or there is no democratic system? Would left-leaning democracies show different results than right-leaning democracies? 
+
+
+# Appendix 
+
+# Bibliography 
+
+
