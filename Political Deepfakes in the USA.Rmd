@@ -3,7 +3,7 @@ title: "Political DeepFakes in the USA: Facebook Usage Does Not Impact American'
 author: "Reem Alasadi, Laura Cline, and Will Trefiak"
 email: laura.cline@mail.utoronto.ca 
 date: "24/03/2021"
-abstract: "This paper uses a Pearson's Chi Square Test to explore the relationship between Facebook usage and identifying if a video is real or a deepfake.We used data from Soubhik Barari, Christopher Lucas, and Kevin Munger's 'Political Deepfake Videos Misinform the Public, but But No More than Other Fake Media' January 2021 study. The paper exposes that there is no relationship between Facebook usage and correctly identifying deepfakes. However, the authors observed that there is a stronger relationship between political affiliation and the figure in the video in predicting whether the video is a deepfake. We conclude that partisan-motivated reasoning appears to faciliate misinformation rather than facebook usage or the content of the deepfake video itself. Therefore, the paper The link to our GitHub repo for this project is: https://github.com/lauracline/Political-Deepfakes-USA."
+abstract: "This paper uses a Pearson's Chi Square Test to explore the relationship between Facebook usage and identifying if a video is real or a deepfake.We used data from Soubhik Barari, Christopher Lucas, and Kevin Munger's 'Political Deepfake Videos Misinform the Public, but But No More than Other Fake Media' January 2021 study. The paper exposes that there is no relationship between Facebook usage and correctly identifying deepfakes. However, the authors observed that there is a stronger relationship between political affiliation and the figure in the video in predicting whether the video is a deepfake. We conclude that partisan-motivated reasoning appears to faciliate misinformation rather than facebook usage or the content of the deepfake video itself. The link to our GitHub repo for this project is: https://github.com/lauracline/Political-Deepfakes-USA."
 output:
   bookdown::pdf_document2:
     toc: TRUE
@@ -168,11 +168,11 @@ population_table %>% #Create a table
 
 ## Majority of Respondents Use Facebook Several Times per Day 
 
-Figure 1 demonstrates the distribution of Facebook usage among experiment participants. The data shows that the majority of respondents use Facebook "several times a day", followed by "about once a day" and "less often" (Figure \@ref(fig:fig1)).
+Figure 1 demonstrates the distribution of Facebook usage among experiment participants. The data shows that the majority of respondents use Facebook "several times a day", followed by "about once a day" and "less often" (Figure \@ref(fig:go)).
 
 The graph was built using R [@citeR], tidyverse [@citetidyverse], and ggplot2 [@citeggplot2]. 
 
-```{r fig1, echo=FALSE}
+```{r go, echo=FALSE}
 dfsurvdat %>%
   ggplot(mapping = aes(x = fb_usage)) + # Creates plot with fb_usage on x-axis
   geom_bar(fill = "blue") + # Create a bar chart 
