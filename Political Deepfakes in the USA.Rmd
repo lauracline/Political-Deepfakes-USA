@@ -731,6 +731,72 @@ When considering the implications of our intervention, however, there are a numb
 
 # Appendix 
 
+![Data Sheets 1](appendix_materials/data_sheets1.png)
+
+![Data Sheets 2](appendix_materials/data_sheets2.png)
+
+![Data Sheets 3](appendix_materials/data_sheets3.png)
+
+![Data Sheets 4](appendix_materials/data_sheets4.png)
+
+![Principal Experiment Linear Model 1](appendix_materials/principal_experiment_lm1.png)
+
+![Principal Experiment Linear Model 2](appendix_materials/principal_experiment_lm2.png)
+
+![Principal Experiment Linear Model 3](appendix_materials/principal_experiment_lm3.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Bibliography 
 
 
